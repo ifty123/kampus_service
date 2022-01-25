@@ -8,15 +8,17 @@ import (
 
 	"github.com/ifty123/kampus_service/pkg/database"
 
+	integ "github.com/ifty123/kampus_service/internal/integration"
 	Repo "github.com/ifty123/kampus_service/internal/repository/postgresql"
+
 	"github.com/ifty123/kampus_service/internal/services"
 	handlers "github.com/ifty123/kampus_service/internal/transport/http"
 	"github.com/ifty123/kampus_service/internal/transport/http/middleware"
 
-	"github.com/apex/log"      //nampil error
-	"github.com/labstack/echo" //echo
+	"github.com/apex/log"
+	"github.com/labstack/echo"
 
-	"github.com/spf13/viper" //baca config
+	"github.com/spf13/viper"
 )
 
 func main() {
@@ -57,7 +59,8 @@ func main() {
 	e.Use(m.CORS)
 
 	sqlrepo := Repo.NewRepo(db.Conn)
-	srv := services.NewService(sqlrepo)
+	integSrv := integ.NewService()
+	srv := services.NewService(sqlrepo, integSrv)
 	handlers.NewHttpHandler(e, srv)
 
 	go func() {

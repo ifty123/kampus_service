@@ -1,9 +1,13 @@
 package dto
 
 import (
+	"errors"
 	"fmt"
 
+	"github.com/ifty123/kampus_service/pkg/common/crypto"
 	"github.com/ifty123/kampus_service/pkg/common/validator"
+	"github.com/ifty123/kampus_service/pkg/env"
+	util "github.com/ifty123/kampus_service/pkg/utils"
 )
 
 type MahasiswaAlamatReqDTO struct {
@@ -93,14 +97,31 @@ func (dto *UpdateAlamatMahasiswaReq) Validate() error {
 }
 
 type GetMahasiswaByIDReqDTO struct {
-	ID int64 `json:"id" valid:"required,integer,non_zero" validname:"id"`
+	ID            int64  `json:"id" valid:"required,integer,non_zero" validname:"id"`
+	Authorization string `json:"Authorization" valid:"required" validname:"datetime"`
+	Signature     string `json:"signature" valid:"required" validname:"signature"`
+	DateTime      string `json:"datetime" valid:"required" validname:"datetime"`
 }
 
 func (dto *GetMahasiswaByIDReqDTO) Validate() error {
 	v := validator.NewValidate(dto)
-	fmt.Println("udah di validasi")
-
+	v.SetCustomValidation(true, func() error {
+		return dto.customValidation()
+	})
 	return v.Validate()
+}
+
+func (dto *GetMahasiswaByIDReqDTO) customValidation() error {
+
+	signature := crypto.EncodeSHA256HMAC(util.GetBTBPrivKeySignature(), dto.Authorization, dto.DateTime)
+	if signature != dto.Signature {
+		if env.IsProduction() {
+			return errors.New("invalid signature")
+		}
+		return errors.New("invalid signature" + " --> " + signature)
+	}
+
+	return nil
 }
 
 //untuk ambil nama maha & validasi nill / not

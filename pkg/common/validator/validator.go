@@ -79,8 +79,11 @@ func setValueStr(types reflect.StructField, values reflect.Value) string {
 }
 
 func typeCheck(param interface{}) error {
+	//tipe isian, klo gaada type, maka return nil
 	types := reflect.TypeOf(param)
+	//isian dati tipe nya
 	values := reflect.ValueOf(param)
+	//jika bentuknya poiter/interface
 	if checkPointer(types) {
 		types = types.Elem()
 		values = values.Elem()
@@ -90,6 +93,7 @@ func typeCheck(param interface{}) error {
 		value := values.Field(i)
 		field := types.Field(i)
 
+		//jika jenis nya terdaftar di kind dengan tipe struct
 		if value.Kind() == reflect.Struct {
 			if !value.CanSet() {
 				continue
@@ -100,6 +104,7 @@ func typeCheck(param interface{}) error {
 				return err
 			}
 			continue
+			//ketika jenis nya pointer dan interface
 		} else if value.Kind() == reflect.Ptr || value.Kind() == reflect.Interface {
 			if value.IsNil() {
 				continue

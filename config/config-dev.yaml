@@ -10,3 +10,14 @@ db:
   dbname: projek
   user: postgres
   password: root1234
+
+integrations:
+  http_dial_timeout_seconds: 5
+  http_request_timeout_seconds: 10
+  externals:
+    http:
+      icanhazdadjoke:
+        host: "https://icanhazdadjoke.com"
+        endpoints:
+          random: "/"
+          byId: "/j/%s"

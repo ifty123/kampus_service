@@ -3,17 +3,19 @@ package services
 import (
 	"fmt"
 
+	integ "github.com/ifty123/kampus_service/internal/integration"
 	"github.com/ifty123/kampus_service/internal/repository"
 	"github.com/ifty123/kampus_service/pkg/dto"
 	"github.com/ifty123/kampus_service/pkg/dto/assembler"
 )
 
 type service struct {
-	repo repository.Repository
+	repo      repository.Repository
+	IntegServ integ.IntegServices
 }
 
-func NewService(repo repository.Repository) Services {
-	return &service{repo}
+func NewService(repo repository.Repository, IntegServ integ.IntegServices) Services {
+	return &service{repo, IntegServ}
 }
 
 func (s *service) SaveMahasiswaAlamat(req *dto.MahasiswaAlamatReqDTO) error {
@@ -205,4 +207,17 @@ func (s *service) GetOnlyAlamat() ([]*dto.AlamatReqDTO, error) {
 	dataAlamatAssembler := assembler.ToGetOnlyAlamatsAll(dataAlamats)
 
 	return dataAlamatAssembler, nil
+}
+
+func (s *service) GetIntegDadJoke(req *dto.GetDadJokesInternalReqDTO) (*dto.GetDadJokesRandomRespDTO, error) {
+	var resp *dto.GetDadJokesRandomRespDTO
+
+	resp, err := s.IntegServ.GetRandomDadJokes(req)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return resp, nil
+
 }

@@ -26,7 +26,7 @@ const (
 	GetMahasiswaByName = `SELECT a.id, a.nama, a.nim, b.jalan, b.no_rumah, b.id_mahasiswas FROM kampus.mahasiswas a JOIN kampus.mahasiswa_alamats b
 							ON a.id = b.id_mahasiswas WHERE a.nama = $1`
 	GetOnlyAlamat   = `SELECT DISTINCT no_rumah, jalan from kampus.mahasiswa_alamats ORDER BY no_rumah`
-	GetOnlyIdIfNull = `SELECT id, nim, nama FROM kampus."mahasiswas" WHERE %s `
+	GetOnlyIdIfNull = `SELECT id, nim, nama FROM kampus."mahasiswas" WHERE %s`
 )
 
 var statement PreparedStatement
@@ -44,6 +44,10 @@ type PreparedStatement struct {
 	getOnlyAlamat         *sqlx.Stmt
 	saveDosens            *sqlx.Stmt
 	saveDosenAlamat       *sqlx.Stmt
+	updateDosens          *sqlx.Stmt
+	tampilDosen           *sqlx.Stmt
+	tampilDosenByID       *sqlx.Stmt
+	tampilDosenAlamat     *sqlx.Stmt
 }
 
 type PostgreSQLRepo struct {
@@ -83,6 +87,10 @@ func InitPreparedStatement(m *PostgreSQLRepo) {
 		getOnlyAlamat:         m.Preparex(GetOnlyAlamat),
 		saveDosens:            m.Preparex(SaveDosens),
 		saveDosenAlamat:       m.Preparex(SaveDosensAlamat),
+		updateDosens:          m.Preparex(UpdateDosens),
+		tampilDosen:           m.Preparex(TampilDosen),
+		tampilDosenByID:       m.Preparex(TampilDosenByID),
+		tampilDosenAlamat:     m.Preparex(TampilDosenAlamat),
 	}
 }
 
@@ -208,6 +216,7 @@ func (p *PostgreSQLRepo) TampilMahasiswa() ([]*models.MahasiswaModels, error) {
 		return nil, fmt.Errorf(mhsErrors.ErrorDB)
 	}
 
+	fmt.Println(data)
 	return data, nil
 }
 

@@ -2,7 +2,7 @@ package models
 
 //dosens
 type DosensModels struct {
-	Id   string `db:"id"`
+	Id   int64  `db:"id"`
 	Name string `db:"nama"`
 	Nidn string `db:"nidn"`
 }
@@ -14,7 +14,7 @@ type DosenAlamatsModels struct {
 }
 
 type DosenAndAlamatsModel struct {
-	Id       string `db:"id"`
+	Id       int64  `db:"id"`
 	Name     string `db:"nama"`
 	Nidn     string `db:"nidn"`
 	Jalan    string `db:"jalan"`

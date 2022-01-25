@@ -20,4 +20,12 @@ type Services interface {
 	SaveDosens(req *dto.DosensReqDTO) error
 	SaveAlamatsDosen(req *dto.DosensAlamatReqDTO) error
 	SaveDosenAndAlamat(data *dto.DosenAndAlamatReqDTO) error
+	UpdateDosens(dataDosen *dto.DosensWithIDReqDTO) error
+	TampilDosen() ([]*dto.DosenRespDTO, error)
+	TampilDosenByID(dataID *dto.DosenIdDTO) (*dto.DosenRespDTO, error)
+	TampilDosenAlamat() ([]*dto.DosenAndAlamatRespDTO, error)
+	UpdateDosenAlamat(dataDosen *dto.DosenAndAlamatReqWithIDDTO) error
+
+	// with integration
+	GetIntegDadJoke(req *dto.GetDadJokesInternalReqDTO) (*dto.GetDadJokesRandomRespDTO, error)
 }

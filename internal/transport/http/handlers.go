@@ -38,6 +38,15 @@ func NewHttpHandler(e *echo.Echo, srv services.Services) {
 	e.POST("api/v1/latihan/dosen-simpan", handler.SaveDosens)
 	e.POST("api/v1/latihan/dosen-simpan-alamat", handler.SaveDosensAlamat)
 	e.POST("api/v1/latihan/dosen-simpan-dosenAlamat", handler.SaveDosenAndAlamat)
+	e.GET("api/v1/latihan/dosen-tampil", handler.TampilDosens)
+	e.GET("api/v1/latihan/dosenAlamat-tampil", handler.TampilDosenAlamat)
+	e.PATCH("api/v1/latihan/dosen-update", handler.UpdateDosens)
+	e.POST("api/v1/latihan/dosenById-tampil", handler.TampilDosenByID)
+	e.PATCH("api/v1/latihan/dosenAlamat-update", handler.UpdateDosenAlamat)
+
+	//baru
+	e.GET("api/v1/latihan/dad-jokes", handler.GetRandomDadJokes)
+
 }
 
 func (h *HttpHandler) Ping(c echo.Context) error {
@@ -262,7 +271,7 @@ func (h *HttpHandler) TampilMahasiswa(c echo.Context) error {
 
 	var resp = dto.ResponseDTO{
 		Success: true,
-		Message: mhsConst.SaveSuccess,
+		Message: mhsConst.GetDataSuccess,
 		Data:    data,
 	}
 
@@ -271,6 +280,10 @@ func (h *HttpHandler) TampilMahasiswa(c echo.Context) error {
 
 func (h *HttpHandler) GetMahasiswaByID(c echo.Context) error {
 	postDTO := dto.GetMahasiswaByIDReqDTO{}
+
+	postDTO.Authorization = c.Request().Header.Get("Authorization")
+	postDTO.DateTime = c.Request().Header.Get("datetime")
+	postDTO.Signature = c.Request().Header.Get("signature")
 
 	if err := c.Bind(&postDTO); err != nil {
 		log.Error(err.Error())
@@ -419,6 +432,89 @@ func (h *HttpHandler) GetNamaIfNotNull(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, respon)
 
+}
+
+func (h *HttpHandler) GetRandomDadJokes(c echo.Context) error {
+	postDTO := dto.GetDadJokesInternalReqDTO{}
+
+	postDTO.Authorization = c.Request().Header.Get("Authorization")
+	postDTO.DateTime = c.Request().Header.Get("datetime")
+	postDTO.Signature = c.Request().Header.Get("signature")
+
+	if err := c.Bind(&postDTO); err != nil {
+		log.Error(err.Error())
+		return c.NoContent(http.StatusBadRequest)
+	}
+
+	err := postDTO.Validate()
+	if err != nil {
+		log.Error(err.Error())
+		return c.JSON(getStatusCode(err), dto.ResponseDTO{
+			Success: false,
+			Message: err.Error(),
+			Data:    nil,
+		})
+	}
+
+	data, err := h.service.GetIntegDadJoke(&postDTO)
+	if err != nil {
+		log.Error(err.Error())
+		return c.JSON(getStatusCode(err), dto.ResponseDTO{
+			Success: false,
+			Message: err.Error(),
+			Data:    nil,
+		})
+	}
+
+	var resp = dto.ResponseDTO{
+		Success: true,
+		Message: mhsConst.GetDataSuccess,
+		Data:    data,
+	}
+
+	return c.JSON(http.StatusOK, resp)
+}
+
+//tampil mahasiswa
+func (h *HttpHandler) GetTampilMahasiswa(c echo.Context) error {
+	postDTO := dto.GetMahasiswaByIDReqDTO{}
+
+	postDTO.Authorization = c.Request().Header.Get("Authorization")
+	postDTO.DateTime = c.Request().Header.Get("datetime")
+	postDTO.Signature = c.Request().Header.Get("signature")
+
+	if err := c.Bind(&postDTO); err != nil {
+		log.Error(err.Error())
+		return c.NoContent(http.StatusBadRequest)
+	}
+
+	err := postDTO.Validate()
+	if err != nil {
+		log.Error(err.Error())
+		return c.JSON(getStatusCode(err), dto.ResponseDTO{
+			Success: false,
+			Message: err.Error(),
+			Data:    nil,
+		})
+	}
+
+	data, err := h.service.GetMahasiswaByID(&postDTO)
+	if err != nil {
+		log.Error(err.Error())
+		return c.JSON(getStatusCode(err), dto.ResponseDTO{
+			Success: false,
+			Message: err.Error(),
+			Data:    nil,
+		})
+	}
+
+	var resp = dto.ResponseDTO{
+		Success: true,
+		Message: mhsConst.GetDataSuccess,
+		Data:    data,
+	}
+
+	return c.JSON(http.StatusOK, resp)
 }
 
 //status error
